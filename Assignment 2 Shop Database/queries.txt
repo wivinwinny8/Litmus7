@@ -1,0 +1,120 @@
+create database shop;
+use shop;
+create table customers(
+	customer_id int primary key,
+    name varchar(100),
+    email varchar(100),
+    city varchar(50),
+    signupdate date
+);
+
+insert into customers values(1,'Bob','bob@gmail.com','Tokyo','2024-11-23');
+insert into customers values(2,'Tom','tom2@gmail.com','Miami','2022-02-10');
+insert into customers values(3,'Jerry','jerry10@gmail.com','Chicago','2021-10-01');
+insert into customers values(4,'Jim','jim22@gmail.com','Los Angeles','2019-11-13');
+insert into customers values(5,'Clara','clara99@gmail.com','Boston','2025-01-23');
+
+create table orders(
+	order_id int primary key,
+    customer_id int,
+    order_date date,
+    total_amount decimal(10,2),
+    foreign key(customer_id) references customers(customer_id)
+);
+
+insert into orders values(1, 4, '2019-11-19', 1500.50);
+insert into orders values(2, 2, '2022-02-14', 2405.75);
+insert into orders values(3, 5, '2025-02-15', 9999.99);
+insert into orders values(4, 1, '2024-12-04', 5940.00);
+insert into orders values(5, 3, '2021-10-23', 7800.20);
+insert into orders values(6, 2, '2022-02-14', 2405.75);
+
+create table products(
+	product_id int primary key,
+    product_name varchar(100),
+    category varchar(50),
+    price decimal(10,2)
+);
+insert into products values(1, 'Apple iPhone 15', 'Electronics', 799.99);
+insert into products values(2, 'Dell XPS 13 Laptop', 'Computers', 1199.49);
+insert into products values(3, 'Nike Air Max 270', 'Footwear', 150.00);
+insert into products values(4, 'Samsung 55" Smart TV', 'Electronics', 649.99);
+insert into products values(5, 'Lee Cooper Jeans', 'Clothing', 59.95);
+
+create table order_details(
+	order_detail_id int primary key,
+    order_id int,
+    product_id int,
+    quantity int,
+    price decimal(10,2),
+    foreign key(order_id) references orders(order_id),
+    foreign key(product_id) references products(product_id)
+);
+
+insert into order_details values(1,2,4,5,5550.00);
+insert into order_details values(2,3,1,2,3950.50);
+insert into order_details values(3,1,5,1,2350.00);
+insert into order_details values(4,5,2,6,9950.00);
+insert into order_details values(5,4,3,5,1250.00);
+
+-- PART B
+-- 1. Get the list of all customers
+select * from customers;
+
+-- 2. Find all orders placed in the last 30 days
+select * from orders where order_date>'2025-05-07';
+
+-- 3. Show product names and their prices
+select product_name, price from products;
+
+-- 4. Find the total number of products in each category
+select count(product_name),category from products group by category;
+
+-- 5. Get all customers from the city 'Mumbai'
+select * from customers where city='Mumbai';
+
+-- 6. Find orders with a total amount greater than ₹5000
+select * from orders where total_amount>5000;
+
+-- 7. List customers who signed up after '2024-01-01
+select * from customers where signupdate>'2024-01-01';
+
+-- 8. Show all orders along with the customer's name
+select orders.order_id,customers.name,orders.total_amount from customers join orders on orders.customer_id=customers.customer_id;
+
+-- 9. List products purchased in each order
+select order_details.order_id,order_details.quantity,products.product_name from order_details join products on order_details.product_id=products.product_id;
+
+-- 10. Find customers who have never placed an order
+select customers.* from customers where customers.customer_id not in(select customers.customer_id from customers join orders on customers.customer_id=orders.order_id);
+
+-- 11. Find the total amount spent by each customer
+select sum(orders.total_amount),customers.name from customers join orders on customers.customer_id=orders.order_id group by customers.name;
+
+-- 12. Which product has been sold the most (by quantity)?
+select max(order_details.quantity) as most_sold,products.product_name from order_details join products on order_details.product_id=products.product_id group by products.product_name order by most_sold desc limit 1;
+
+-- 13. Find the average order value for each customer
+select avg(orders.total_amount) as average_amount,customers.name from customers join orders on customers.customer_id=orders.customer_id group by customers.name;
+
+-- 14. Total sales amount per product category
+select sum(price) as total_sales,category from products group by category;
+
+-- 15. Find customers who spent more than the average spending
+-- ?
+
+-- 16. List products that have never been ordered
+select * from products where product_id not in(select distinct product_id from order_details);
+
+-- 17. Find the most recent order for each customer
+select * from customers where customer_id in(select customer_id from orders where order_date in(select max(order_date)from orders group by customer_id));
+select max(orders.order_date) as recent,customers.name from orders join customers on customers.customer_id=orders.customer_id group by customers.name;
+
+-- 18. Rank customers by total spending (highest first)
+select max(orders.total_amount) as total_spending,customers.name from customers join orders on customers.customer_id=orders.customer_id group by customers.name order by total_spending desc;
+
+-- 19. Get the top 3 customers based on the number of orders placed
+select count(order_id) as order_count,customer_id from orders group by customer_id order by order_count desc limit 3;
+
+-- 20. For each product, find how many unique customers have purchased it
+select products.product_name,count(distinct orders.customer_id) as unique_customer from order_details join orders on order_details.order_id=orders.order_id join products on order_details.product_id=products.product_id group by products.product_name;
