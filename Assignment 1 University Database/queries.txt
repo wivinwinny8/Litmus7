@@ -1,0 +1,30 @@
+create database university;
+use university;
+
+create table students(
+	student_id int primary key,
+    first_name varchar(15),
+    last_name varchar(15),
+    email varchar(20),
+    dob date,
+    adv_id int,
+    crs_id int
+);
+
+create table advisors(
+	advisor_id int primary key,
+    first_name varchar(15),
+    last_name varchar(15),
+    email varchar(20),
+    specialization varchar(20)
+);
+
+create table courses(
+	course_code int primary key,
+    title varchar(25),
+    course_description varchar(30),
+    instructor varchar(20)
+);
+
+alter table students add foreign key(adv_id) references advisors(advisor_id);
+alter table students add foreign key(crs_id) references courses(course_code);
