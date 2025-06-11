@@ -2,29 +2,39 @@ create database university;
 use university;
 
 create table students(
-	student_id int primary key,
-    first_name varchar(15),
+	student_id int primary key auto_increment,
+    first_name varchar(15) not null,
     last_name varchar(15),
-    email varchar(20),
-    dob date,
-    adv_id int,
-    crs_id int
+    email varchar(40) unique,
+    dob date not null,
+    advisor_id int,
+    course_id int
 );
 
 create table advisors(
-	advisor_id int primary key,
-    first_name varchar(15),
+	advisor_id int primary key auto_increment,
+    first_name varchar(15) not null,
     last_name varchar(15),
-    email varchar(20),
+    email varchar(40) unique,
     specialization varchar(20)
 );
 
 create table courses(
-	course_code int primary key,
-    title varchar(25),
-    course_description varchar(30),
-    instructor varchar(20)
+	course_id int primary key,
+    title varchar(25) unique,
+    course_description varchar(100),
+    instructor varchar(30)
 );
 
-alter table students add foreign key(adv_id) references advisors(advisor_id);
-alter table students add foreign key(crs_id) references courses(course_code);
+alter table students add constraint fk_advisor_id foreign key(advisor_id) references advisors(advisor_id);
+alter table students add constraint fk_course_id foreign key(course_id) references courses(course_id);
+
+create table enrollment(
+	student_id int not null,
+    course_id int not null,
+    enrollment_status varchar(10),
+    enrollment_date date,
+    primary key(student_id,course_id),
+    constraint fk_enrollment_student_id foreign key(student_id) references students(student_id),
+    constraint fk_enrollment_course_id foreign key(course_id) references courses(course_id)
+);
