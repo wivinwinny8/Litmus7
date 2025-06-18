@@ -8,14 +8,17 @@ enum grades {
 
 	private String description;
 
+	// constructor for enum
 	grades(String description) {
 		this.description = description;
 	}
 
+	// returns value of the description based on grade
 	public String getDescription() {
 		return description;
 	}
 
+	// returns the grade based on average marks
 	public static grades getGrade(double average) {
 		if (average >= 90) {
 			return A;
